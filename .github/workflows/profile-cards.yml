@@ -1,9 +1,14 @@
-name: Profile Summary Cards
+name: Profile Cards
 
 on:
   schedule:
     - cron: "0 3 * * *" # daily, 03:00 UTC
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/scripts/render_profile.py"
+      - ".github/workflows/profile-cards.yml"
 
 permissions:
   contents: write
@@ -13,41 +18,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cards:
+  render:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate cards (tokyonight)
-        uses: vn7n24fzkq/github-profile-summary-cards@release
-        env:
-          # Fine-grained PAT (Contents/Metadata read) to include private activity in totals.
-          # Falls back to the built-in token (public activity only) when the secret is absent.
-          GITHUB_TOKEN: ${{ secrets.SUMMARY_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
         with:
-          USERNAME: ${{ github.repository_owner }}
-          TIME_ZONE: "Asia/Jerusalem"
-          THEME: "tokyonight"
-          AUTO_PUSH: false
+          python-version: "3.12"
 
-      # Served from the repo so the profile never depends on GitHub's image proxy
-      # or a third-party host being reachable. Keeps the last good card on failure.
-      - name: Refresh streak card
-        run: |
-          url="https://streak-stats.demolab.com?user=${{ github.repository_owner }}&theme=tokyonight&hide_border=true&background=1A1B27&ring=7AA2F7&fire=BB9AF7&currStreakLabel=7AA2F7"
-          if curl -fsSL --max-time 30 -o /tmp/streak.svg "$url" && grep -q '<svg' /tmp/streak.svg; then
-            mv /tmp/streak.svg assets/streak.svg
-          else
-            echo "::warning::Streak service unavailable; keeping previous card."
-          fi
+      # Optional SUMMARY_GITHUB_TOKEN (fine-grained PAT, read-only Contents + Metadata on the
+      # flagship repositories) lets private repository cards and languages refresh too. Without it,
+      # private cards keep their last rendered version and languages cover public repositories.
+      - name: Render cards from live GitHub data
+        env:
+          GH_TOKEN: ${{ secrets.SUMMARY_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          INCLUDE_PRIVATE: ${{ secrets.SUMMARY_GITHUB_TOKEN != '' }}
+        run: python -I .github/scripts/render_profile.py
 
       - name: Commit cards as profile owner
         run: |
-          git add profile-summary-card-output assets/streak.svg
+          git add assets
           if git diff --cached --quiet; then
             echo "Cards unchanged."
             exit 0
           fi
           git -c user.name="jacobel640" -c user.email="jacobel640@gmail.com" \
-            commit -m "Refresh profile summary cards"
+            commit -m "Refresh profile cards"
           git push
