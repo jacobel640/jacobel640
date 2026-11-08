@@ -30,9 +30,20 @@ jobs:
           THEME: "tokyonight"
           AUTO_PUSH: false
 
+      # Served from the repo so the profile never depends on GitHub's image proxy
+      # or a third-party host being reachable. Keeps the last good card on failure.
+      - name: Refresh streak card
+        run: |
+          url="https://streak-stats.demolab.com?user=${{ github.repository_owner }}&theme=tokyonight&hide_border=true&background=1A1B27&ring=7AA2F7&fire=BB9AF7&currStreakLabel=7AA2F7"
+          if curl -fsSL --max-time 30 -o /tmp/streak.svg "$url" && grep -q '<svg' /tmp/streak.svg; then
+            mv /tmp/streak.svg assets/streak.svg
+          else
+            echo "::warning::Streak service unavailable; keeping previous card."
+          fi
+
       - name: Commit cards as profile owner
         run: |
-          git add profile-summary-card-output
+          git add profile-summary-card-output assets/streak.svg
           if git diff --cached --quiet; then
             echo "Cards unchanged."
             exit 0
