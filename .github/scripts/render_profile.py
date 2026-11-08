@@ -545,7 +545,9 @@ def render_live(token: str) -> None:
     rows = [
         ("contributions · 12 months", fmt_int(sum(v for d, v in days.items() if d > today - timedelta(days=365))), CYAN),
         ("contributions · all time", fmt_int(sum(days.values())), VIOLET),
-        ("pull requests", fmt_int(user["pullRequests"]["totalCount"]), EMERALD),
+        # The PR total only includes private repositories when the token can read them.
+        ("pull requests" if include_private else "public pull requests",
+         fmt_int(user["pullRequests"]["totalCount"]), EMERALD),
         ("public repositories", fmt_int(user["publicRepos"]["totalCount"]), CYAN),
         ("on GitHub", f"{(today - created).days / 365.25:.1f} yrs", VIOLET),
     ]
