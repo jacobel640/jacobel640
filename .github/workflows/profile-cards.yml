@@ -1,0 +1,42 @@
+name: Profile Summary Cards
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # daily, 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-cards
+  cancel-in-progress: true
+
+jobs:
+  cards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate cards (tokyonight)
+        uses: vn7n24fzkq/github-profile-summary-cards@release
+        env:
+          # Fine-grained PAT (Contents/Metadata read) to include private activity in totals.
+          # Falls back to the built-in token (public activity only) when the secret is absent.
+          GITHUB_TOKEN: ${{ secrets.SUMMARY_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+        with:
+          USERNAME: ${{ github.repository_owner }}
+          TIME_ZONE: "Asia/Jerusalem"
+          THEME: "tokyonight"
+          AUTO_PUSH: false
+
+      - name: Commit cards as profile owner
+        run: |
+          git add profile-summary-card-output
+          if git diff --cached --quiet; then
+            echo "Cards unchanged."
+            exit 0
+          fi
+          git -c user.name="jacobel640" -c user.email="jacobel640@gmail.com" \
+            commit -m "Refresh profile summary cards"
+          git push
