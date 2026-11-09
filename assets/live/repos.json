@@ -1,0 +1,148 @@
+{
+  "Files": {
+    "defaultBranchRef": {
+      "target": {
+        "history": {
+          "totalCount": 91
+        }
+      }
+    },
+    "languages": {
+      "edges": [
+        {
+          "node": {
+            "name": "Java"
+          },
+          "size": 608081
+        },
+        {
+          "node": {
+            "name": "Kotlin"
+          },
+          "size": 23194
+        },
+        {
+          "node": {
+            "name": "Shell"
+          },
+          "size": 8772
+        },
+        {
+          "node": {
+            "name": "Python"
+          },
+          "size": 4944
+        }
+      ]
+    },
+    "primaryLanguage": {
+      "name": "Java"
+    },
+    "pushedAt": "2026-10-22T20:08:21Z"
+  },
+  "Minim4You-waba-wix": {
+    "defaultBranchRef": {
+      "target": {
+        "history": {
+          "totalCount": 408
+        }
+      }
+    },
+    "languages": {
+      "edges": [
+        {
+          "node": {
+            "name": "Java"
+          },
+          "size": 1481375
+        },
+        {
+          "node": {
+            "name": "HTML"
+          },
+          "size": 491883
+        },
+        {
+          "node": {
+            "name": "Procfile"
+          },
+          "size": 58
+        }
+      ]
+    },
+    "primaryLanguage": {
+      "name": "Java"
+    },
+    "pushedAt": "2026-09-23T14:06:44Z"
+  },
+  "TaskFlow": {
+    "defaultBranchRef": {
+      "target": {
+        "history": {
+          "totalCount": 97
+        }
+      }
+    },
+    "languages": {
+      "edges": [
+        {
+          "node": {
+            "name": "Kotlin"
+          },
+          "size": 309588
+        }
+      ]
+    },
+    "primaryLanguage": {
+      "name": "Kotlin"
+    },
+    "pushedAt": "2026-10-22T15:52:00Z"
+  },
+  "gio-manetti": {
+    "defaultBranchRef": {
+      "target": {
+        "history": {
+          "totalCount": 211
+        }
+      }
+    },
+    "languages": {
+      "edges": [
+        {
+          "node": {
+            "name": "TypeScript"
+          },
+          "size": 341117
+        },
+        {
+          "node": {
+            "name": "Python"
+          },
+          "size": 109819
+        },
+        {
+          "node": {
+            "name": "HCL"
+          },
+          "size": 56742
+        },
+        {
+          "node": {
+            "name": "JavaScript"
+          },
+          "size": 45943
+        },
+        {
+          "node": {
+            "name": "Shell"
+          },
+          "size": 10294
+        }
+      ]
+    },
+    "primaryLanguage": {
+      "name": "TypeScript"
+    },
+    "pushedAt": "2026-11-08T13:12:43Z"
+  }
+}

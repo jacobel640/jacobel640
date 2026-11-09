@@ -27,18 +27,21 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install renderer dependencies
+        run: python -m pip install --disable-pip-version-check fonttools==4.68.0 materialyoucolor==3.0.4
+
       # Optional SUMMARY_GITHUB_TOKEN (fine-grained PAT, read-only Contents + Metadata on the
-      # flagship repositories) lets private repository cards and languages refresh too. Without it,
-      # private cards keep their last rendered version and languages cover public repositories.
-      - name: Render cards from live GitHub data
+      # flagship repositories) refreshes private repository metrics and the full PR count.
+      # Without it, private cards are re-rendered from assets/live/repos.json.
+      - name: Render README and cards from live GitHub data
         env:
           GH_TOKEN: ${{ secrets.SUMMARY_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           INCLUDE_PRIVATE: ${{ secrets.SUMMARY_GITHUB_TOKEN != '' }}
         run: python -I .github/scripts/render_profile.py
 
-      - name: Commit cards as profile owner
+      - name: Commit as profile owner
         run: |
-          git add assets
+          git add README.md assets
           if git diff --cached --quiet; then
             echo "Cards unchanged."
             exit 0

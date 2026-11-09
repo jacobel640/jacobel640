@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="115" height="30" viewBox="0 0 115 30" role="img" aria-label="Repository"><style>
-.mono{font-family:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace}
-.sans{font-family:'Inter','Segoe UI',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}
-.fade{opacity:0;animation:fade .7s ease-out forwards}
-.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2s ease-in-out infinite}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.9)}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;opacity:1!important}}
-</style><rect x=".5" y=".5" width="114" height="29" rx="14.5" fill="#0D1117" stroke="#818CF8" stroke-opacity=".5"/><text x="16" y="19.0" class="mono" font-size="12" font-weight="600" fill="#E2E8F0">Repository</text><text x="99" y="19.0" text-anchor="end" class="mono" font-size="12" fill="#818CF8">↗</text></svg>
