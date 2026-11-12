@@ -102,7 +102,7 @@
     "defaultBranchRef": {
       "target": {
         "history": {
-          "totalCount": 211
+          "totalCount": 219
         }
       }
     },
@@ -122,15 +122,15 @@
         },
         {
           "node": {
-            "name": "HCL"
+            "name": "JavaScript"
           },
-          "size": 56742
+          "size": 69111
         },
         {
           "node": {
-            "name": "JavaScript"
+            "name": "HCL"
           },
-          "size": 45943
+          "size": 56742
         },
         {
           "node": {
@@ -143,6 +143,6 @@
     "primaryLanguage": {
       "name": "TypeScript"
     },
-    "pushedAt": "2026-11-08T13:12:43Z"
+    "pushedAt": "2026-11-11T15:25:43Z"
   }
 }
