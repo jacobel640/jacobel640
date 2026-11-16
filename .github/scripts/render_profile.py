@@ -48,7 +48,10 @@ LIVE = ASSETS / "live"
 
 PORTFOLIO = "https://jacobelcharar.dev"
 LINKEDIN = "https://www.linkedin.com/in/jacob-elcharar-b9ba3a3a1/"
-EMAIL = "mailto:jacobel640@gmail.com"
+# The contact address is not kept in code: it comes from the PROFILE_EMAIL repository variable
+# (or environment variable when run locally). Without it the cards still render, but README.md
+# is left as it is so the Email button is never dropped by accident.
+CONTACT = os.environ.get("PROFILE_EMAIL", "").strip()
 
 # ── Content ──────────────────────────────────────────────────────────────────────────────
 NAME = "Jacob Elcharar"
@@ -94,13 +97,16 @@ PROJECTS = [
      "chips": ["Kotlin", "Jetpack Compose", "Room", "WorkManager", "Firestore"],
      "links": [("Case study", f"{PORTFOLIO}/projects/taskflow/"),
                ("Repository", "https://github.com/jacobel640/TaskFlow")]},
-    {"slug": "gio-manetti", "repo": "gio-manetti", "title": "GIO MANETTI", "role": "inverse",
-     "status": "Active build",
-     "pitch": "Modern fullstack e-commerce and brand platform built for low-latency rendering.",
-     "highlights": ["Next.js App Router", "Deterministic inventory handling",
-                    "Clean component design system"],
-     "chips": ["Next.js", "TypeScript", "Tailwind CSS", "Fullstack"],
-     "links": [("Case study", f"{PORTFOLIO}/projects/gio-manetti/")]},
+    {"slug": "fashion-commerce-platform", "repo": "fashion-commerce-platform",
+     "title": "Fashion Commerce Platform", "role": "inverse",
+     "status": "White-label · Active build",
+     "pitch": "White-label e-commerce for established fashion houses: one shared codebase, "
+              "one deployment per brand, each dressed by a brand pack instead of a fork.",
+     "highlights": ["Brand packs swap palette, type and logo without touching shared code",
+                    "Exact shekel pricing in integer agorot, VAT-inclusive",
+                    "Stock reservations that cannot oversell, proven by race tests"],
+     "chips": ["TypeScript", "Medusa 2.0", "GraphQL Yoga", "PostgreSQL", "Redis", "Turborepo"],
+     "links": [("Case study", f"{PORTFOLIO}/projects/fashion-commerce-platform/")]},
 ]
 
 SECTIONS = [("01", "Tech stack"), ("02", "Featured systems"), ("03", "Live activity")]
@@ -345,15 +351,19 @@ def segmented_bar(st: Style, langs, x, y, w, h=8, gap=4, colors=None) -> str:
     return "".join(out)
 
 
-def legend(st: Style, langs, x, y, size=12, colors=None, ink=None) -> str:
+def legend(st: Style, langs, x, y, max_x, size=12, colors=None, ink=None) -> tuple[str, float]:
+    """Legend that wraps onto further rows; returns the SVG and the baseline of its last row."""
     colors = colors or [st.c["primary"], st.c["tertiary"], st.c["secondary"], st.c["outline"], st.c["outlineVariant"]]
     out, cx = [], x
     for i, (name, share) in enumerate(langs):
         label = f"{name} {share * 100:.0f}%"
+        w = tw(label, size, "body") + 15
+        if cx > x and cx + w > max_x:
+            cx, y = x, y + size * 1.8
         out.append(f'<circle cx="{cx + 5}" cy="{y - size * .35:.1f}" r="5" fill="{colors[i % len(colors)]}"/>'
                    + text(cx + 15, y, label, size, "body", ink or st.c["onSurfaceVariant"]))
-        cx += tw(label, size, "body") + 34
-    return "".join(out)
+        cx += w + 19
+    return "".join(out), y
 
 
 # ── Blocks ──────────────────────────────────────────────────────────────────────────────
@@ -567,9 +577,23 @@ def project(st: Style, p: dict, repo: dict, mobile: bool) -> str:
                    f'<circle class="pulse" cx="{pad + 18}" cy="{pad + 16}" r="4" fill="{accent}"/>'
                    + text(pad + 30, pad + 21, st_label, 13, "medium", c["onSurfaceVariant"]))
     y = pad + 32 + (54 if st.x else 48)
+    tfont = st.display if st.x else "body"
     tsize = (40 if st.x else 30) if not mobile else (34 if st.x else 28)
-    out.append(text(pad, y, p["title"], tsize, st.display if st.x else "body", ink, extra='letter-spacing="-.5"'))
-    y += 32
+    floor = tsize - 8
+    # Long titles shrink a little first, then break onto a second line.
+    lines = [p["title"]]
+    while tw(lines[0], tsize, tfont) > content_w and tsize > floor:
+        tsize -= 1
+    if tw(lines[0], tsize, tfont) > content_w:
+        tsize = (40 if st.x else 30) if not mobile else (34 if st.x else 28)
+        while True:
+            lines = wrap(p["title"], tsize, tfont, content_w)
+            if len(lines) <= 2 and max(tw(ln, tsize, tfont) for ln in lines) <= content_w:
+                break
+            tsize -= 1
+    for i, line in enumerate(lines):
+        out.append(text(pad, y + i * tsize * 1.05, line, tsize, tfont, ink, extra='letter-spacing="-.5"'))
+    y += 32 + (len(lines) - 1) * tsize * 1.05
     for line in wrap(p["pitch"], 16, "body", content_w):
         out.append(text(pad, y, line, 16, "body", sub))
         y += 24
@@ -577,9 +601,11 @@ def project(st: Style, p: dict, repo: dict, mobile: bool) -> str:
     for i, h_ in enumerate(p["highlights"]):
         bullet = (f'<path d="{shape(i, pad + 7, y - 5, 7)}" fill="{accent}"/>' if st.x
                   else f'<circle cx="{pad + 4}" cy="{y - 5}" r="3" fill="{accent}"/>')
+        hfont = "medium" if st.x else "body"
+        hlines = wrap(h_, 15, hfont, content_w - 22)
         out.append(f'<g class="in" style="animation-delay:{.1 + .08 * i:.2f}s">{bullet}'
-                   + text(pad + 22, y, h_, 15, "medium" if st.x else "body", ink) + "</g>")
-        y += 26
+                   + "".join(text(pad + 22, y + j * 21, ln, 15, hfont, ink) for j, ln in enumerate(hlines)) + "</g>")
+        y += 26 + (len(hlines) - 1) * 21
     y += 10
     chips_svg, y = chip_flow(st, p["chips"], pad, y, pad + content_w, chip_fill, chip_ink, chip_stroke)
     out.append(chips_svg)
@@ -608,8 +634,9 @@ def project(st: Style, p: dict, repo: dict, mobile: bool) -> str:
         bar_y = max(y, my + 3 * 70 + 8 + 24)
     colors = [ink, mix(ink, fill, .55), mix(ink, fill, .35), mix(ink, fill, .2)] if st.x else None
     out.append(segmented_bar(st, langs, pad, bar_y, W - 2 * pad, 8, 4, colors))
-    out.append(legend(st, langs, pad, bar_y + 32, 12.5, colors, sub))
-    H = bar_y + 32 + pad
+    legend_svg, legend_y = legend(st, langs, pad, bar_y + 32, W - pad, 12.5, colors, sub)
+    out.append(legend_svg)
+    H = legend_y + pad
     deco = ""
     if st.x and not mobile:
         deco = f'<path class="spin" d="{shape(PROJECTS.index(p) * 2, W - 10, H + 10, 120)}" fill="{ink}" opacity=".06"/>'
@@ -846,6 +873,7 @@ def fetch(token: str):
             cache[p["repo"]] = repo
         else:
             print(f"{p['repo']}: not readable with this token; using cached data")
+    cache = {name: data for name, data in cache.items() if name in {p["repo"] for p in PROJECTS}}
     write(cache_path, json.dumps(cache, indent=2, sort_keys=True) + "\n")
     return data, langs, cache
 
@@ -907,7 +935,7 @@ def readme(variant: str) -> str:
         "",
         f'<a href="{PORTFOLIO}">{pic(f"{a}/btn-portfolio", "jacobelcharar.dev", responsive=False, height=btn_h)}</a>&nbsp;'
         f'<a href="{LINKEDIN}">{pic(f"{a}/btn-linkedin", "LinkedIn", responsive=False, height=btn_h)}</a>&nbsp;'
-        f'<a href="{EMAIL}">{pic(f"{a}/btn-email", "Email", responsive=False, height=btn_h)}</a>',
+        f'<a href="mailto:{CONTACT}">{pic(f"{a}/btn-email", "Email", responsive=False, height=btn_h)}</a>',
         "",
         "</div>",
         "",
@@ -950,8 +978,10 @@ def main(argv: list[str]) -> int:
     if preview:
         for v in variants:
             write(Path(preview) / f"README-{v}.md", readme(v))
-    else:
+    elif CONTACT:
         write(ROOT / "README.md", readme(variants[0]))
+    else:
+        print("PROFILE_EMAIL is not set: cards rendered, README.md left unchanged", file=sys.stderr)
     return 0
 
 

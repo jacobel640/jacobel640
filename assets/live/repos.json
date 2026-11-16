@@ -98,11 +98,11 @@
     },
     "pushedAt": "2026-10-22T15:52:00Z"
   },
-  "gio-manetti": {
+  "fashion-commerce-platform": {
     "defaultBranchRef": {
       "target": {
         "history": {
-          "totalCount": 247
+          "totalCount": 279
         }
       }
     },
@@ -112,7 +112,7 @@
           "node": {
             "name": "TypeScript"
           },
-          "size": 343262
+          "size": 454288
         },
         {
           "node": {
@@ -124,7 +124,7 @@
           "node": {
             "name": "JavaScript"
           },
-          "size": 69022
+          "size": 69616
         },
         {
           "node": {
@@ -136,13 +136,13 @@
           "node": {
             "name": "Shell"
           },
-          "size": 10294
+          "size": 12331
         }
       ]
     },
     "primaryLanguage": {
       "name": "TypeScript"
     },
-    "pushedAt": "2026-11-15T10:30:01Z"
+    "pushedAt": "2026-11-16T01:58:46Z"
   }
 }

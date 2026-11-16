@@ -37,15 +37,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SUMMARY_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           INCLUDE_PRIVATE: ${{ secrets.SUMMARY_GITHUB_TOKEN != '' }}
+          PROFILE_EMAIL: ${{ vars.PROFILE_EMAIL }}
         run: python -I .github/scripts/render_profile.py
 
+      # Commits are authored as the profile owner. The address lives in the PROFILE_EMAIL
+      # repository variable, not in this file.
       - name: Commit as profile owner
+        env:
+          PROFILE_EMAIL: ${{ vars.PROFILE_EMAIL }}
         run: |
+          if [ -z "$PROFILE_EMAIL" ]; then
+            echo "::warning::Set the PROFILE_EMAIL repository variable to publish refreshed cards."
+            exit 0
+          fi
           git add README.md assets
           if git diff --cached --quiet; then
             echo "Cards unchanged."
             exit 0
           fi
-          git -c user.name="jacobel640" -c user.email="jacobel640@gmail.com" \
+          git -c user.name="${{ github.repository_owner }}" -c user.email="$PROFILE_EMAIL" \
             commit -m "Refresh profile cards"
           git push
